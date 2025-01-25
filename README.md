@@ -1,1 +1,1 @@
-# GenerativeAI_apps
+# This is a Generative AI apps.
