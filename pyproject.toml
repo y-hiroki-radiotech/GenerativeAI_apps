@@ -48,6 +48,9 @@ transformers = "<4.48.0"
 sentencepiece = "^0.2.0"
 ollama = "^0.4.7"
 gradio = "^5.13.1"
+pgvector = "^0.3.6"
+psycopg = {extras = ["binary"], version = "^3.2.4"}
+sqlalchemy = "^2.0.37"
 
 
 [build-system]
