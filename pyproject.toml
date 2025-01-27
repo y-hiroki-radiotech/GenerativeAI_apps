@@ -51,6 +51,10 @@ gradio = "^5.13.1"
 pgvector = "^0.3.6"
 psycopg = {extras = ["binary"], version = "^3.2.4"}
 sqlalchemy = "^2.0.37"
+llama-index = "^0.12.14"
+llama-parse = "^0.5.20"
+llama-index-core = "^0.12.14"
+llama-index-readers-file = "^0.4.4"
 
 
 [build-system]
