@@ -1,0 +1,35 @@
+{
+  "os": "macOS-15.2-x86_64-i386-64bit",
+  "python": "CPython 3.11.3",
+  "startedAt": "2025-01-29T22:44:09.736431Z",
+  "program": "/Users/user/Desktop/GenerativeAI_apps/third_finance_competition/src/llama-parse/recursive_medium.ipynb",
+  "codePath": "third_finance_competition/src/llama-parse/recursive_medium.ipynb",
+  "git": {
+    "remote": "git@github.com:y-hiroki-radiotech/GenerativeAI_apps.git",
+    "commit": "57254f6a2ee94bbe05c9cc29add7fec2ef88ce34"
+  },
+  "email": "y.hiroki.rad@gmail.com",
+  "root": "/Users/user/Desktop/GenerativeAI_apps/third_finance_competition/src/llama-parse",
+  "host": "MacBookAir",
+  "executable": "/Users/user/Desktop/GenerativeAI_apps/.venv/bin/python",
+  "codePathLocal": "recursive_medium.ipynb",
+  "cpu_count": 4,
+  "cpu_count_logical": 8,
+  "disk": {
+    "/": {
+      "total": "499963174912",
+      "used": "477492326400"
+    },
+    "/System/Volumes/Data": {
+      "total": "499963174912",
+      "used": "477492326400"
+    }
+  },
+  "memory": {
+    "total": "17179869184"
+  },
+  "cpu": {
+    "count": 4,
+    "countLogical": 8
+  }
+}

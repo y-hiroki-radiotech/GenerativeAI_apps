@@ -55,6 +55,10 @@ llama-index = "^0.12.14"
 llama-parse = "^0.5.20"
 llama-index-core = "^0.12.14"
 llama-index-readers-file = "^0.4.4"
+llama-index-postprocessor-flag-embedding-reranker = "^0.3.0"
+llama-index-postprocessor-cohere-rerank = "^0.3.0"
+wandb = "^0.19.5"
+weave = "^0.51.32"
 
 
 [build-system]
