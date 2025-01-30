@@ -47,3 +47,6 @@ htmlcov/
 
 .mypy_cache
 
+# PDF files
+*.pdf
+wandb
