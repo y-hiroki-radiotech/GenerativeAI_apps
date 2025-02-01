@@ -1,19 +1,14 @@
-import os
 import logging
+import os
 import re
-import shutil
-from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
-import PyPDF2
+import pikepdf
 import pytesseract
 from dotenv import load_dotenv
-from langchain_core.prompts import PromptTemplate
 from openai import OpenAI
 from pdf2image import convert_from_path
-from PIL import Image
-
-import settings
+from tqdm import tqdm
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, force=True)
@@ -61,12 +56,9 @@ class PdfRename:
             FileNotFoundError: デフォルトのファイルパスが存在しない場合
         """
         current_dir = os.getcwd()
-        default_path = os.path.join(current_dir, settings.DOCUMENTS)
+        default_path = os.path.join(current_dir, "documents")
         if not os.path.exists(default_path):
-            raise FileNotFoundError(
-                f"デフォルトのファイルパスが見つかりません: {default_path}・・・\
-                settings.pyのsettingsDOCUMENTSを見直してください。"
-            )
+            raise FileNotFoundError(f"デフォルトのファイルパスが見つかりません: {default_path}・・")
         return default_path
 
     def _generate_title(self, text: str) -> str:
@@ -80,12 +72,15 @@ class PdfRename:
             str: 生成されたタイトル（形式: 会社名-報告書の種類-年）
         """
         response = self.llm.chat.completions.create(
-            model=settings.OPENAI_MODEL,
+            model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "あなたは優秀な日本の経済アナリストです。以下のテキストから会社名と報告書の種類を抽出してください。"},
+                {
+                    "role": "system",
+                    "content": "あなたは優秀な日本の経済アナリストです。以下のテキストから会社名と報告書の種類を抽出してください。",
+                },
                 {"role": "user", "content": text},
-                {"role": "system", "content": "以下の形式で出力してください: 会社名-報告書の種類-年"}
-            ]
+                {"role": "system", "content": "以下の形式で出力してください: 会社名-報告書の種類-年"},
+            ],
         )
         return response.choices[0].message.content.strip()
 
@@ -99,7 +94,7 @@ class PdfRename:
         Returns:
             str: クリーニング済みのテキスト
         """
-        text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r"\s+", " ", text)
         return text.strip()
 
     def _extract_text_from_image(self, file_path: str) -> str:
@@ -127,33 +122,28 @@ class PdfRename:
 
         Args:
             file_path (str): 処理対象のPDFファイルパス
-
-        Note:
-            この処理は元のファイルを削除し、新しいファイルを作成します。
         """
-        reader = PyPDF2.PdfReader(file_path)
-        writer = PyPDF2.PdfWriter()
+        try:
+            # OCRでテキストを抽出
+            first_page_text = self._extract_text_from_image(file_path)
+            title = self._generate_title(first_page_text)
 
-        # メタデータを取得
-        metadata = reader.metadata
-        metadata.update({PyPDF2.generic.NameObject('/Title'): PyPDF2.generic.createStringObject(title)})
+            # 新しいファイル名を生成
+            output_path = os.path.join(os.path.dirname(file_path), f"{title}.pdf")
 
-        # すべてのページをライターに追加
-        for page_num in range(len(reader.pages)):
-            writer.add_page(reader.pages[page_num])
+            # pikepdfを使用してメタデータを更新
+            with pikepdf.open(file_path) as pdf:
+                with pdf.open_metadata() as meta:
+                    meta["dc:title"] = title
+                pdf.save(output_path)
 
-        # メタデータを設定
-        writer.add_metadata(metadata)
+            # 元のファイルを削除
+            os.remove(file_path)
+            logging.info(f"Renamed and updated metadata: {file_path} -> {output_path}")
 
-        first_page_text = self._extract_text_from_image(file_path)
-        title = self._generate_title(first_page_text)
-
-        # 新しいファイル名でPDFを保存
-        output_path = f"{title}.pdf"
-
-        shutil.copy2(file_path, output_path)
-        original_path = Path(file_path)
-        original_path.unlink()
+        except Exception as e:
+            logging.error(f"Error processing {file_path}: {str(e)}")
+            raise
 
     def _get_pdf_files(self) -> List[str]:
         """
@@ -175,7 +165,7 @@ class PdfRename:
         Note:
             このメソッドは self.pdf_files 内のすべてのPDFファイルを処理します。
         """
-        for pdf_file in self.pdf_files:
+        for pdf_file in tqdm(self.pdf_files, total=len(self.pdf_files), position=0):
             self._rename_pdf_file(pdf_file)
 
 
